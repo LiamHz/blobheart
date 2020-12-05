@@ -30,22 +30,7 @@ function scene1() {
   rotateY(180)
   blobheart(0, 0)
   pop()
-  //blobheart(CW/2-200, CH/2-40, 14)
-  //blobheart(CW/2-160, CH/2-40, 12)
 }
-
-/*
-function setup() {
-  createCanvas(CH, CW, WEBGL);
-}
-
-function draw() {
-  background(255);
-  ellipse(10, 10, 50);
-  scene1()
-}
-*/
-
 
 HEXAGON_SIZE = 20 // edge size
 HEXAGON_HEIGHT = Math.sqrt(Math.pow(HEXAGON_SIZE, 2) - Math.pow(HEXAGON_SIZE/2, 2))
@@ -63,10 +48,14 @@ function windowResized() {
 hexColors = ['#9b5de5', '#f15bb5', '#fee440', '#00bbf9', '#00f5d4']
 hexColors = hexColors.map(x => hexToHSL(x))
 
-function hexGrid(fade, fadeType) {
+function hexGrid(fade, fadeType, fadeDir) {
   const hexChance = 0.7
   const gridHeight = windowHeight / (HEXAGON_HEIGHT) + 1
   const gridWidth = windowWidth / (HEXAGON_SIZE*3) + 1 
+
+  if (fadeDir == "reverse") {
+    fade = 1.0 - fade
+  }
 
   function drawHex(fade) {
     push()
@@ -76,8 +65,24 @@ function hexGrid(fade, fadeType) {
     fill(hexColor)
     if (Math.random() > hexChance) {
       polygon(0, 0, HEXAGON_SIZE - GUTTER, 6)
+    }
       
     pop()
+  }
+
+  function getHexFade(idx) {
+    hexFade = 0
+    if (fadeType === "out") {
+      hexFade = fade + randfloat(-0.35, 0)
+    } else if (fadeType == "down") {
+      // Logging this significantly lowers FPS
+      //console.log((fade / gridHeight) / idx, "fades")
+      hexFade = (fade / gridHeight) / idx * 1600
+    } else {
+      console.error("invalid fade type: ", fadeType)
+    }
+
+    return hexFade
   }
 
   for (let i = 0; i < gridHeight; i++) {
@@ -86,55 +91,39 @@ function hexGrid(fade, fadeType) {
     translate(-windowWidth/2  + HEXAGON_SIZE*(3/2*(i%2)),
               -windowHeight/2 + HEXAGON_HEIGHT*(i))
 
-    hexFade = 0
-    if (fadeType === "out") {
-      hexFade = fade + randfloat(-0.35, 0)
-    } else if (fadeType == "down") {
-      console.log((fade / gridHeight) / i, "fades")
-      hexFade = (fade / gridHeight) / i * 100
-    } else {
-      console.error("invalid fade type: ", fadeType)
-    }
-
-    drawHex(hexFade)
+    drawHex(getHexFade(i))
 
     for (let j = 0; j < gridWidth - 1; j++){
       translate(p5.Vector.fromAngle(radians(0), HEXAGON_SIZE * 3))
-      hexFade = 0
-      if (fadeType === "out") {
-        hexFade = fade + randfloat(-0.35, 0)
-      } else if (fadeType == "down") {
-        console.log((fade / gridHeight) / i, "fades")
-        hexFade = (fade / gridHeight) / i * 100
-      } else {
-        console.error("invalid fade type: ", fadeType)
-      }  
-      drawHex(hexFade)
+      drawHex(getHexFade(i))
     }
     pop()
   }
 }
 
 let fade = 0
+let fadeType = "down"
+let fadeDir = "forward"
+
 let hex1Seed = 42
 let hex2Seed = 69
-let fadeType = "down"
 
 function draw() {
   background(255)
-  fade += fadeType == "down" ? 0.1 : -0.1
+  fade += fadeDir == "forward" ? 0.01 : -0.01
 
-  if (fade == 1 || fade == 0) {
-    fadeType = fadeType == "out" ? "down" : "out"
+  if (fade <= -0.2) {
+    fadeDir = fadeDir == "forward" ? "reverse" : "forward"
     hex1Seed += Math.random()
+  } else if (fade >= 1.2) {
+    fadeDir = fadeDir == "forward" ? "reverse" : "forward"
     hex2Seed += Math.random()
   }
 
   Math.seedrandom(str(hex1Seed));
-  //hexGrid(Math.abs(Math.sin(millis()/1000)), "out")
-  hexGrid(fade, "out")
+  hexGrid(fade, fadeType, "forward")
   Math.seedrandom(str(hex2Seed));
-  hexGrid(fade, "out")
+  hexGrid(fade, fadeType, "reverse")
 }
 
 function rand(lo, hi) {
