@@ -53,7 +53,6 @@ GUTTER = 0.5
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL)
-  noLoop()
 }
 
 function windowResized() {
@@ -61,45 +60,45 @@ function windowResized() {
   redraw()
 }
 
-colors = []
-colors.push('#9b5de5')
-colors.push('#f15bb5')
-colors.push('#fee440')
-colors.push('#00bbf9')
-colors.push('#00f5d4')
+hexColors = ['#9b5de5', '#f15bb5', '#fee440', '#00bbf9', '#00f5d4']
+hexColors = hexColors.map(x => hexToHSL(x))
 
-function draw() {
+function hexGrid(fade) {
   const gridHeight = windowHeight / (HEXAGON_HEIGHT) + 1
   const gridWidth = windowWidth / (HEXAGON_SIZE*3) + 1 
   const hexChance = 0.7
 
-  background(255)
-
-  for (let i = 0; i < gridHeight; i++) {
-    push()
-    // % 2 is because hexagons alternate where they start from
-    translate(-windowWidth/2 + HEXAGON_SIZE*(3/2*(i%2)),
-    - windowHeight / 2 + HEXAGON_HEIGHT*(i))
-
+  function drawHex() {
     push()
     noStroke()
-    fill(colors[Math.floor(Math.random() * colors.length)])
+    hexColor = color(hexColors[rand(0, hexColors.length)])
+    hexColor._array[3] = fade + randfloat(-0.2, 0.2)
+    fill(hexColor)
     if (Math.random() > hexChance)
       polygon(0, 0, HEXAGON_SIZE - GUTTER, 6)
     pop()
+  }
+
+  for (let i = 0; i < gridHeight; i++) {
+    push()
+    // % 2 is used because hexagons alternate where they start from
+    translate(-windowWidth/2  + HEXAGON_SIZE*(3/2*(i%2)),
+              -windowHeight/2 + HEXAGON_HEIGHT*(i))
+    drawHex()
 
     for (let j = 0; j < gridWidth - 1; j++){
       translate(p5.Vector.fromAngle(radians(0), HEXAGON_SIZE * 3))
-
-      push()
-      noStroke()
-      fill(colors[Math.floor(Math.random() * colors.length)])
-      if (Math.random() > hexChance)
-        polygon(0, 0, HEXAGON_SIZE - GUTTER, 6)
-      pop()
+      drawHex()
     }
     pop()
   }
+}
+function draw() {
+  background(255)
+  Math.seedrandom('beep');
+  hexGrid(Math.abs(Math.sin(millis()/3000)))
+  Math.seedrandom('boop');
+  hexGrid(1-Math.abs(Math.sin(millis()/3000)))
 }
 
 function rand(lo, hi) {
@@ -108,4 +107,8 @@ function rand(lo, hi) {
 
 function randfloat(lo, hi) {
   return Math.random() * (hi - lo) + lo;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
