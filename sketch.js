@@ -72,7 +72,7 @@ function hexGrid(fade, fadeType, fadeDir, gutter=0.5) {
     hexColor._array[3] = fade
     fill(hexColor)
     if (Math.random() > hexChance) {
-      polygon(0, 0, HEXAGON_SIZE - gutter, 6)
+      polygon(0, 0, HEXAGON_SIZE - HEXAGON_SIZE*clamp(gutter, 0, 0.3), 6)
     }
       
     pop()
@@ -132,9 +132,11 @@ function draw() {
   }
 
   Math.seedrandom(str(hex1Seed));
-  hexGrid(fade, fadeType, "forward")
+  hexGrid(fade, fadeType, "forward", fade)
   Math.seedrandom(str(hex2Seed));
-  hexGrid(fade, fadeType, "reverse")
+  hexGrid(fade, fadeType, "reverse", fade)
+
+  blobheart(Math.sin(millis()/512)*64, (fade-0.5)*2*windowHeight/2, clamp(fade, 0.5, 1.0)*30)
 }
 
 function rand(lo, hi) {
