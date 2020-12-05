@@ -63,19 +63,20 @@ function windowResized() {
 hexColors = ['#9b5de5', '#f15bb5', '#fee440', '#00bbf9', '#00f5d4']
 hexColors = hexColors.map(x => hexToHSL(x))
 
-function hexGrid(fade) {
+function hexGrid(fade, fadeType) {
+  const hexChance = 0.7
   const gridHeight = windowHeight / (HEXAGON_HEIGHT) + 1
   const gridWidth = windowWidth / (HEXAGON_SIZE*3) + 1 
-  const hexChance = 0.7
 
-  function drawHex() {
+  function drawHex(fade) {
     push()
     noStroke()
     hexColor = color(hexColors[rand(0, hexColors.length)])
-    hexColor._array[3] = fade + randfloat(-0.2, 0.2)
+    hexColor._array[3] = fade
     fill(hexColor)
-    if (Math.random() > hexChance)
+    if (Math.random() > hexChance) {
       polygon(0, 0, HEXAGON_SIZE - GUTTER, 6)
+      
     pop()
   }
 
@@ -84,21 +85,56 @@ function hexGrid(fade) {
     // % 2 is used because hexagons alternate where they start from
     translate(-windowWidth/2  + HEXAGON_SIZE*(3/2*(i%2)),
               -windowHeight/2 + HEXAGON_HEIGHT*(i))
-    drawHex()
+
+    hexFade = 0
+    if (fadeType === "out") {
+      hexFade = fade + randfloat(-0.35, 0)
+    } else if (fadeType == "down") {
+      console.log((fade / gridHeight) / i, "fades")
+      hexFade = (fade / gridHeight) / i * 100
+    } else {
+      console.error("invalid fade type: ", fadeType)
+    }
+
+    drawHex(hexFade)
 
     for (let j = 0; j < gridWidth - 1; j++){
       translate(p5.Vector.fromAngle(radians(0), HEXAGON_SIZE * 3))
-      drawHex()
+      hexFade = 0
+      if (fadeType === "out") {
+        hexFade = fade + randfloat(-0.35, 0)
+      } else if (fadeType == "down") {
+        console.log((fade / gridHeight) / i, "fades")
+        hexFade = (fade / gridHeight) / i * 100
+      } else {
+        console.error("invalid fade type: ", fadeType)
+      }  
+      drawHex(hexFade)
     }
     pop()
   }
 }
+
+let fade = 0
+let hex1Seed = 42
+let hex2Seed = 69
+let fadeType = "down"
+
 function draw() {
   background(255)
-  Math.seedrandom('beep');
-  hexGrid(Math.abs(Math.sin(millis()/3000)))
-  Math.seedrandom('boop');
-  hexGrid(1-Math.abs(Math.sin(millis()/3000)))
+  fade += fadeType == "down" ? 0.1 : -0.1
+
+  if (fade == 1 || fade == 0) {
+    fadeType = fadeType == "out" ? "down" : "out"
+    hex1Seed += Math.random()
+    hex2Seed += Math.random()
+  }
+
+  Math.seedrandom(str(hex1Seed));
+  //hexGrid(Math.abs(Math.sin(millis()/1000)), "out")
+  hexGrid(fade, "out")
+  Math.seedrandom(str(hex2Seed));
+  hexGrid(fade, "out")
 }
 
 function rand(lo, hi) {
