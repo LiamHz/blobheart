@@ -4,6 +4,14 @@
 ## Storyboard
 Some ideas on potential scenes, each of which could evolve over time, and then transition to another scene.
 
+### 2D to 3D perspective stuff
+
+### Things that leave a trail
+- Lines
+
+### Quiet scene
+- Dark sky with stars, a single leaf blows through in the wind
+
 ### Abstract 2D Patterns
 - Tiling hexagons
 - Would be good for the intro, outro, and riff of a song
