@@ -120,25 +120,25 @@ let chill = 0.0
 
 
 function draw() {
-  background(255)
-  fade += fadeDir == "forward" ? 0.005 : -0.005
+  // background(255)
+  // fade += fadeDir == "forward" ? 0.005 : -0.005
 
-  if (fade <= 0-chill) {
-    fadeDir = fadeDir == "forward" ? "reverse" : "forward"
-    hex1Seed += Math.random()
-  } else if (fade >= 1+chill) {
-    fadeDir = fadeDir == "forward" ? "reverse" : "forward"
-    hex2Seed += Math.random()
-  }
+  // if (fade <= 0-chill) {
+  //   fadeDir = fadeDir == "forward" ? "reverse" : "forward"
+  //   hex1Seed += Math.random()
+  // } else if (fade >= 1+chill) {
+  //   fadeDir = fadeDir == "forward" ? "reverse" : "forward"
+  //   hex2Seed += Math.random()
+  // }
 
-  Math.seedrandom(str(hex1Seed));
-  hexGrid(fade, fadeType, "forward", fade)
-  Math.seedrandom(str(hex2Seed));
-  hexGrid(fade, fadeType, "reverse", fade)
+  // Math.seedrandom(str(hex1Seed));
+  // hexGrid(fade, fadeType, "forward", fade)
+  // Math.seedrandom(str(hex2Seed));
+  // hexGrid(fade, fadeType, "reverse", fade)
 
-  blobheart(Math.sin(millis()/512)*64, (fade-0.5)*2*windowHeight/2, clamp(fade, 0.5, 1.0)*30)
+  // blobheart(Math.sin(millis()/512)*64, (fade-0.5)*2*windowHeight/2, clamp(fade, 0.5, 1.0)*30)
 
-  // bestaplaid(millis())
+  bestaplaid(millis())
 }
 
 function rand(lo, hi) {

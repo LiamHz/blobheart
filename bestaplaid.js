@@ -42,6 +42,10 @@ function bestaplaid(time) {
     return scale
   }
 
+  function sleep(ms) {
+    msOffset += ms
+  }
+
   function topLine() {
     lineTranslate.apply(null, arguments)
     line(-windowWidth/2, -hexagonHeight, windowWidth * timeScale(), -hexagonHeight)
@@ -130,7 +134,10 @@ function bestaplaid(time) {
     fill(black)
     polygon(0, 0, hexagonEdge, 6)
 
+    sleep(1000)
+
     // innermost six lines, drawn one at a time
+    msPerLine = 600
     strokeWeight(120)
     stroke(colourOpacity(brightPink, 0.35))
     topLine()
@@ -146,7 +153,7 @@ function bestaplaid(time) {
     topLeftLine()
 
     // fat lilac outer lines
-    msPerLine = 200
+    msPerLine = 500
     stroke(colourOpacity(lilac, 0.3))
     strokeWeight(200)
     horizontalLines(hexagonHeight)
@@ -154,7 +161,7 @@ function bestaplaid(time) {
     backwardSlashLines(2.5*hexagonHeight)
 
     // fat pink / purple outer lines (goes around the inner most lines)
-    msPerLine = 150
+    msPerLine = 600
     stroke(colourOpacity(brightPink, 0.3))
     bottomLeftLine(-hexagonHeight)
     topRightLine(hexagonHeight)
@@ -168,6 +175,7 @@ function bestaplaid(time) {
     strokeWeight(10)
     horizontalLines(hexagonHeight - 40)
     horizontalLines(hexagonHeight + 40)
+    msPerLine = 300
     topRightLine(2*hexagonHeight + 40)
     topRightLine(2*hexagonHeight - 40)
     bottomRightLine(2*hexagonHeight + 40)
@@ -187,6 +195,7 @@ function bestaplaid(time) {
     topRightLine(hexagonHeight, 50)
 
     // outermost pink lines
+    msPerLine = 200
     stroke(colourOpacity(pink, 0.4))
     strokeWeight(15)
     horizontalLines(hexagonHeight + 150)
@@ -194,6 +203,7 @@ function bestaplaid(time) {
     backwardSlashLines(2.5*hexagonHeight + 300)
 
     // final layer of white lines
+    msPerLine = 600
     strokeWeight(5)
     stroke(colourOpacity(white, 0.6))
     forwardSlashLines()
