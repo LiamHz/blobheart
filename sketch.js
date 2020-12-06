@@ -51,7 +51,7 @@ hexColors = hexColors.map(x => hexToHSL(x))
 function hexGrid(fade, fadeType, fadeDir) {
   const hexChance = 0.7
   const gridHeight = windowHeight / (HEXAGON_HEIGHT) + 1
-  const gridWidth = windowWidth / (HEXAGON_SIZE*3) + 1 
+  const gridWidth = windowWidth / (HEXAGON_SIZE*3) + 1
 
   if (fadeDir == "reverse") {
     fade = 1.0 - fade
@@ -66,7 +66,7 @@ function hexGrid(fade, fadeType, fadeDir) {
     if (Math.random() > hexChance) {
       polygon(0, 0, HEXAGON_SIZE - GUTTER, 6)
     }
-      
+
     pop()
   }
 
@@ -108,8 +108,10 @@ let fadeDir = "forward"
 let hex1Seed = 42
 let hex2Seed = 69
 
+
 function draw() {
   background(255)
+
   fade += fadeDir == "forward" ? 0.01 : -0.01
 
   if (fade <= -0.2) {
@@ -124,6 +126,8 @@ function draw() {
   hexGrid(fade, fadeType, "forward")
   Math.seedrandom(str(hex2Seed));
   hexGrid(fade, fadeType, "reverse")
+
+  // bestaplaid(millis())
 }
 
 function rand(lo, hi) {
@@ -132,6 +136,20 @@ function rand(lo, hi) {
 
 function randfloat(lo, hi) {
   return Math.random() * (hi - lo) + lo;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function makePoint(x, y) {
+  return {x: x, y: y}
+}
+
+function colourOpacity(colour, opacity) {
+    hexColor = color(colour)
+    hexColor._array[3] = opacity
+    return hexColor
 }
 
 function sleep(ms) {
