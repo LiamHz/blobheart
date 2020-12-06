@@ -34,7 +34,6 @@ function scene1() {
 
 HEXAGON_SIZE = 20 // edge size
 HEXAGON_HEIGHT = Math.sqrt(Math.pow(HEXAGON_SIZE, 2) - Math.pow(HEXAGON_SIZE/2, 2))
-GUTTER = 0.5
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL)
@@ -48,7 +47,16 @@ function windowResized() {
 hexColors = ['#9b5de5', '#f15bb5', '#fee440', '#00bbf9', '#00f5d4']
 hexColors = hexColors.map(x => hexToHSL(x))
 
-function hexGrid(fade, fadeType, fadeDir) {
+/*
+1. Make "roling wave" fade down (nrows away from target row sets fade value)
+2. Make hexagons pulse by changing gutter size
+3. Make hexagons pulse by changing gutter size
+4. Play around with stroke everywhere, but only some are filled in
+*/
+
+const clamp = (num, a, b) => Math.max(Math.min(num, Math.max(a, b)), Math.min(a, b));
+
+function hexGrid(fade, fadeType, fadeDir, gutter=0.5) {
   const hexChance = 0.7
   const gridHeight = windowHeight / (HEXAGON_HEIGHT) + 1
   const gridWidth = windowWidth / (HEXAGON_SIZE*3) + 1
@@ -60,42 +68,43 @@ function hexGrid(fade, fadeType, fadeDir) {
   function drawHex(fade) {
     push()
     noStroke()
-    hexColor = color(hexColors[rand(0, hexColors.length)])
-    hexColor._array[3] = fade
+    hexColor = colorOpacity(hexColors[rand(0, hexColors.length)], fade)
     fill(hexColor)
     if (Math.random() > hexChance) {
-      polygon(0, 0, HEXAGON_SIZE - GUTTER, 6)
+      polygon(0, 0, HEXAGON_SIZE - HEXAGON_SIZE*clamp(gutter, 0, 0.3), 6)
     }
 
     pop()
   }
 
-  function getHexFade(idx) {
+  function getHexFade(rowN, targetRow) {
     hexFade = 0
     if (fadeType === "out") {
       hexFade = fade + randfloat(-0.35, 0)
     } else if (fadeType == "down") {
-      // Logging this significantly lowers FPS
-      //console.log((fade / gridHeight) / idx, "fades")
-      hexFade = (fade / gridHeight) / idx * 1600
+      hexFade = 1.0 - (Math.abs(rowN - targetRow) / gridHeight)
+      hexFade = Math.min(fade, hexFade)
     } else {
       console.error("invalid fade type: ", fadeType)
     }
 
     return hexFade
   }
-
+  // Row which is full opacity
+  // Opacity of hexagons is their distance from that row
+  targetRow = Math.floor(clamp(fade, 0, 1) * gridHeight)
+  console.log(targetRow)
   for (let i = 0; i < gridHeight; i++) {
     push()
     // % 2 is used because hexagons alternate where they start from
     translate(-windowWidth/2  + HEXAGON_SIZE*(3/2*(i%2)),
               -windowHeight/2 + HEXAGON_HEIGHT*(i))
 
-    drawHex(getHexFade(i))
+    drawHex(getHexFade(i, targetRow))
 
     for (let j = 0; j < gridWidth - 1; j++){
       translate(p5.Vector.fromAngle(radians(0), HEXAGON_SIZE * 3))
-      drawHex(getHexFade(i))
+      drawHex(getHexFade(i, targetRow))
     }
     pop()
   }
@@ -107,25 +116,27 @@ let fadeDir = "forward"
 
 let hex1Seed = 42
 let hex2Seed = 69
+let chill = 0.0
 
 
 function draw() {
   background(255)
+  fade += fadeDir == "forward" ? 0.005 : -0.005
 
-  fade += fadeDir == "forward" ? 0.01 : -0.01
-
-  if (fade <= -0.2) {
+  if (fade <= 0-chill) {
     fadeDir = fadeDir == "forward" ? "reverse" : "forward"
     hex1Seed += Math.random()
-  } else if (fade >= 1.2) {
+  } else if (fade >= 1+chill) {
     fadeDir = fadeDir == "forward" ? "reverse" : "forward"
     hex2Seed += Math.random()
   }
 
   Math.seedrandom(str(hex1Seed));
-  hexGrid(fade, fadeType, "forward")
+  hexGrid(fade, fadeType, "forward", fade)
   Math.seedrandom(str(hex2Seed));
-  hexGrid(fade, fadeType, "reverse")
+  hexGrid(fade, fadeType, "reverse", fade)
+
+  blobheart(Math.sin(millis()/512)*64, (fade-0.5)*2*windowHeight/2, clamp(fade, 0.5, 1.0)*30)
 
   // bestaplaid(millis())
 }
@@ -138,10 +149,6 @@ function randfloat(lo, hi) {
   return Math.random() * (hi - lo) + lo;
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function makePoint(x, y) {
   return {x: x, y: y}
 }
@@ -150,8 +157,4 @@ function colourOpacity(colour, opacity) {
     hexColor = color(colour)
     hexColor._array[3] = opacity
     return hexColor
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }

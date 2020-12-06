@@ -15,6 +15,12 @@ const black = "#000"
 const leftPoint = makePoint(-hexagonEdge, 0)
 const rightPoint = makePoint(hexagonEdge, 0)
 
+
+// TODO:
+// - bezier curved speed changes
+// - make a random generator
+// - add striped lines
+
 function bestaplaid(time) {
   let msPerLine = 500
   let msOffset = 0
